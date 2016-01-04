@@ -1,0 +1,30 @@
+﻿{
+    "version": "1.0.0-*",
+    "description": "SolutionUtil Console Application",
+    "authors": [ "lodejard" ],
+    "tags": [ "" ],
+    "projectUrl": "",
+    "licenseUrl": "",
+
+    "dependencies": {
+        "System.Collections": "4.0.10-beta-*",
+        "System.Console": "4.0.0-beta-*",
+        "System.Linq": "4.0.0-beta-*",
+        "System.Threading": "4.0.10-beta-*",
+        "Microsoft.CSharp": "4.0.0-beta-*",
+        "Newtonsoft.Json": "8.0.1-beta4",
+        "Microsoft.Extensions.CommandLineUtils.Sources": {
+            "version": "1.0.0-*",
+            "type": "build"
+        },
+        "Microsoft.Extensions.FileSystemGlobbing": "1.0.0-*"
+    },
+
+    "commands": {
+        "SolutionUtil": "SolutionUtil"
+    },
+
+    "frameworks": {
+        "dnxcore50": { }
+    }
+}

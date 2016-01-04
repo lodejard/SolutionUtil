@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "SolutionUtil": {
+      "commandName": "SolutionUtil",
+      "commandLineArgs": "crossref add C:\\Users\\lodejard\\projects\\Universe2"
+    }
+  }
+}
