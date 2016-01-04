@@ -1,11 +1,9 @@
 ﻿using System;
-using Microsoft.Dnx.Runtime.Common.CommandLine;
-using Microsoft.Extensions.FileSystemGlobbing;
-using Microsoft.Extensions.FileSystemGlobbing.Abstractions;
-using SolutionUtil.Models;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Microsoft.Dnx.Runtime.Common.CommandLine;
+using SolutionUtil.Models;
 
 namespace SolutionUtil
 {
@@ -35,34 +33,31 @@ namespace SolutionUtil
             Console.WriteLine($"Executing: Crossref Add {path}");
 
             var operations = new WorkspaceOperations();
-
             var workspace = new DotnetWorkspace();
 
             operations.FindAndLoadSolutions(workspace, path);
-
             operations.FindAndLoadProjects2(workspace);
-
             operations.FindProjectToProjectDependencies(workspace);
 
             foreach (var solution in workspace.Solutions)
             {
-                var allDependencies = solution
-                    .Projects
-                    .SelectMany(project => project.Dependencies.Select(dependency => new { project, dependency }));
+                var allProject = solution.Projects.Select(p => Tuple.Create(p, p, p));
 
-                var p2pLocations = allDependencies
-                    .Where(x => x.project.ProjectJson.ParentPath != x.dependency.DotnetProject.ProjectJson.ParentPath)
-                    .GroupBy(x => MakeRelativePath(solution.GlobalJson.FilePath, x.dependency.DotnetProject.ProjectJson.ParentPath).Replace("\\", "/"))
+                var allProject2Project = SelectRecursive(0, allProject);
+
+                var allProject2ProjectLocations = allProject2Project
+                    .Where(tuple => tuple.Item1.ProjectJson.ParentPath != tuple.Item3.ProjectJson.ParentPath)
+                    .GroupBy(tuple => MakeRelativePath(solution.GlobalJson.FilePath, tuple.Item3.ProjectJson.ParentPath).Replace("\\", "/"))
                     .ToArray();
 
                 var neededLocations = new List<string>();
 
                 Console.WriteLine($"  {solution.GlobalJson.FolderPath}");
-                foreach (var p2pLocation in p2pLocations)
+                foreach (var project2ProjectLocation in allProject2ProjectLocations)
                 {
-                    neededLocations.Add(p2pLocation.Key);
-                    Console.WriteLine($"    {p2pLocation.Key}");
-                    foreach (var dependencyName in p2pLocation.Select(x => x.dependency.DotnetProject.Name).Distinct())
+                    neededLocations.Add(project2ProjectLocation.Key);
+                    Console.WriteLine($"    {project2ProjectLocation.Key}");
+                    foreach (var dependencyName in project2ProjectLocation.Select(x => x.Item3.Name).Distinct())
                     {
                         Console.WriteLine($"      {dependencyName}");
                     }
@@ -83,7 +78,35 @@ namespace SolutionUtil
                 //solution.GlobalJson.FilePath += ".txt";
                 solution.GlobalJson.Save();
             }
+
+            using (var batch = File.CreateText("restore-all.cmd"))
+            {
+                foreach (var p in workspace.Projects)
+                {
+                    batch.WriteLine($"call dnu restore {p.ProjectJson.FolderPath}");
+                }
+            }
             return 0;
+        }
+
+        private IEnumerable<Tuple<DotnetProject, DotnetProject, DotnetProject>> SelectRecursive(
+            int depth,
+            IEnumerable<Tuple<DotnetProject, DotnetProject, DotnetProject>> projects)
+        {
+            if (depth == 64)
+            {
+                int x = 5;
+            }
+
+            var dependencies = projects
+                .SelectMany(tuple => tuple.Item3.Dependencies.Select(d => Tuple.Create(tuple.Item1, tuple.Item3, d.DotnetProject)))
+                .Where(tuple => tuple.Item3 != null);
+
+            if (dependencies.Any())
+            {
+                return projects.Concat(SelectRecursive(depth + 1, dependencies)).Distinct();
+            }
+            return projects;
         }
 
         public static string MakeRelativePath(string fromPath, string toPath)

@@ -2,9 +2,9 @@
 
 namespace SolutionUtil.Models
 {
-    public abstract class JTokenModel
+    public abstract class JsonFileItem
     {
-        protected JTokenModel(JToken token)
+        protected JsonFileItem(JToken token)
         {
             Token = token;
         }

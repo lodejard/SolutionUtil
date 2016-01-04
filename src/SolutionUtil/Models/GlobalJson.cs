@@ -4,7 +4,7 @@ using System.IO;
 
 namespace SolutionUtil.Models
 {
-    public class GlobalJson : JTokenModel
+    public class GlobalJson : JsonFileItem
     {
         public GlobalJson(JToken root) : base(root)
         {

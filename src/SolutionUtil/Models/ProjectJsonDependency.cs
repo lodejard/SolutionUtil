@@ -2,7 +2,7 @@
 
 namespace SolutionUtil.Models
 {
-    public class ProjectJsonDependency : JTokenModel
+    public class ProjectJsonDependency : JsonFileItem
     {
         public ProjectJsonDependency(JToken token) : base(token)
         {

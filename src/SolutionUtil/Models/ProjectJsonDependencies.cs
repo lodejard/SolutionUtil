@@ -4,7 +4,7 @@ using Newtonsoft.Json.Linq;
 
 namespace SolutionUtil.Models
 {
-    public class ProjectJsonDependencies : JTokenModel, IEnumerable<ProjectJsonDependency>
+    public class ProjectJsonDependencies : JsonFileItem, IEnumerable<ProjectJsonDependency>
     {
         public ProjectJsonDependencies(JToken token) : base(token)
         {

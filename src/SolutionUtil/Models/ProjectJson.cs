@@ -4,7 +4,7 @@ using System.IO;
 
 namespace SolutionUtil.Models
 {
-    public class ProjectJson : JTokenModel
+    public class ProjectJson : JsonFileItem
     {
         public ProjectJson(JToken token) : base(token)
         {

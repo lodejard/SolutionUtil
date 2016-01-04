@@ -5,7 +5,7 @@ using System.Collections;
 
 namespace SolutionUtil.Models
 {
-    public class GlobalJsonProjectFolders : JTokenModel, IEnumerable<GlobalJsonProjectFolder>
+    public class GlobalJsonProjectFolders : JsonFileItem, IEnumerable<GlobalJsonProjectFolder>
     {
         public GlobalJsonProjectFolders(JToken token) : base(token)
         {

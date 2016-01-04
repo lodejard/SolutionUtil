@@ -2,7 +2,7 @@
 
 namespace SolutionUtil.Models
 {
-    public class GlobalJsonProjectFolder : JTokenModel
+    public class GlobalJsonProjectFolder : JsonFileItem
     {
         public GlobalJsonProjectFolder(JToken token) : base(token)
         {
