@@ -1,5 +1,5 @@
 ﻿{
-    "version": "1.0.0-*",
+    "version": "0.2.1-*",
     "description": "SolutionUtil Console Application",
     "authors": [ "lodejard" ],
     "tags": [ "" ],
@@ -7,17 +7,12 @@
     "licenseUrl": "",
 
     "dependencies": {
-        "System.Collections": "4.0.10-beta-*",
-        "System.Console": "4.0.0-beta-*",
-        "System.Linq": "4.0.0-beta-*",
-        "System.Threading": "4.0.10-beta-*",
-        "Microsoft.CSharp": "4.0.0-beta-*",
         "Newtonsoft.Json": "8.0.1-beta4",
+        "Microsoft.Extensions.FileSystemGlobbing": "1.0.0-*",
         "Microsoft.Extensions.CommandLineUtils.Sources": {
             "version": "1.0.0-*",
             "type": "build"
-        },
-        "Microsoft.Extensions.FileSystemGlobbing": "1.0.0-*"
+        }
     },
 
     "commands": {
@@ -25,6 +20,17 @@
     },
 
     "frameworks": {
-        "dnxcore50": { }
+        "dnx451": {
+
+        },
+        "dnxcore50": {
+            "dependencies": {
+                "System.Collections": "4.0.10-beta-*",
+                "System.Console": "4.0.0-beta-*",
+                "System.Linq": "4.0.0-beta-*",
+                "System.Threading": "4.0.10-beta-*",
+                "Microsoft.CSharp": "4.0.0-beta-*"
+            }
+        }
     }
 }

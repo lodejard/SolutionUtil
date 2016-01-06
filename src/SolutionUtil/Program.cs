@@ -12,30 +12,43 @@ namespace SolutionUtil
         public int Main(string[] args)
         {
             var app = new CommandLineApplication();
-            app.Command("crossref", cmdCrossref =>
+            app.Command("crossref", cmd =>
             {
-                cmdCrossref.Command("add", cmdCrossrefAdd =>
+                cmd.Command("add", subcmd =>
                 {
-                    var argPath = cmdCrossrefAdd.Argument("path", "Root path to scan for global.json files");
-                    cmdCrossrefAdd.OnExecute(() =>
-                        OnCrossrefAdd(cmdCrossrefAdd, argPath));
+                    var argPath = subcmd.Argument("path", "Root path to scan for global.json files");
+                    subcmd.OnExecute(() =>
+                        OnCrossrefAdd(subcmd, argPath));
+                });
+                cmd.Command("clear", subcmd =>
+                {
+                    var argPath = subcmd.Argument("path", "Root path to scan for global.json files");
+                    subcmd.OnExecute(() =>
+                        OnCrossrefClear(subcmd, argPath));
                 });
             });
             return app.Execute(args);
         }
 
+
         private int OnCrossrefAdd(
             CommandLineApplication cmd,
             CommandArgument argPath)
         {
-            var path = argPath.Value;
+            var paths = new[] { argPath.Value }
+                .Concat(cmd.RemainingArguments)
+                .Select(path => Path.GetFullPath(path))
+                .ToArray();
 
-            Console.WriteLine($"Executing: Crossref Add {path}");
+            Console.WriteLine($"Executing Crossref Add");
 
             var operations = new WorkspaceOperations();
             var workspace = new DotnetWorkspace();
 
-            operations.FindAndLoadSolutions(workspace, path);
+            foreach (var path in paths)
+            {
+                operations.FindAndLoadSolutions(workspace, path);
+            }
             operations.FindAndLoadProjects2(workspace);
             operations.FindProjectToProjectDependencies(workspace);
 
@@ -52,14 +65,14 @@ namespace SolutionUtil
 
                 var neededLocations = new List<string>();
 
-                Console.WriteLine($"  {solution.GlobalJson.FolderPath}");
+//                Console.WriteLine($"  {solution.GlobalJson.FolderPath}");
                 foreach (var project2ProjectLocation in allProject2ProjectLocations)
                 {
                     neededLocations.Add(project2ProjectLocation.Key);
-                    Console.WriteLine($"    {project2ProjectLocation.Key}");
+  //                  Console.WriteLine($"    {project2ProjectLocation.Key}");
                     foreach (var dependencyName in project2ProjectLocation.Select(x => x.Item3.Name).Distinct())
                     {
-                        Console.WriteLine($"      {dependencyName}");
+    //                    Console.WriteLine($"      {dependencyName}");
                     }
                 }
 
@@ -75,7 +88,6 @@ namespace SolutionUtil
 
             foreach (var solution in workspace.Solutions)
             {
-                //solution.GlobalJson.FilePath += ".txt";
                 solution.GlobalJson.Save();
             }
 
@@ -86,6 +98,36 @@ namespace SolutionUtil
                     batch.WriteLine($"call dnu restore {p.ProjectJson.FolderPath}");
                 }
             }
+            return 0;
+        }
+
+        private int OnCrossrefClear(CommandLineApplication cmd, CommandArgument argPath)
+        {
+            var paths = new[] { argPath.Value }
+                .Concat(cmd.RemainingArguments)
+                .Select(path => Path.GetFullPath(path))
+                .ToArray();
+
+            Console.WriteLine($"Executing Crossref Clear");
+
+            var operations = new WorkspaceOperations();
+            var workspace = new DotnetWorkspace();
+
+            foreach (var path in paths)
+            {
+                operations.FindAndLoadSolutions(workspace, path);
+            }
+
+            foreach (var solution in workspace.Solutions)
+            {
+                solution.GlobalJson.ClearAddedProjects();
+            }
+
+            foreach (var solution in workspace.Solutions)
+            {
+                solution.GlobalJson.Save();
+            }
+
             return 0;
         }
 
